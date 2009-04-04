@@ -78,12 +78,11 @@ OPTIONS = {
     'extra_args': []
 }
 
+long_opts = ['email=', 'password=', 'help', 'format=', 'refresh',
+             'refresh-rate=', 'config=', 'length=', 'timestamp', 'datestamp']
+short_opts = "e:p:f:h?rR:c:l:td"
 def parse_args(args, options):
-    long_opts = ['email', 'password', 'help', 'format', 'refresh',
-                 'refresh-rate', 'config', 'length', 'timestamp', 'datestamp']
-    short_opts = "e:p:f:h?rR:c:l:td"
-    opts, extra_args = getopt(args, short_opts, long_opts)        
-
+    opts, extra_args = getopt(args, short_opts, long_opts)
     for opt, arg in opts:
         if opt in ('-e', '--email'):
             options['email'] = arg
@@ -109,7 +108,7 @@ def parse_args(args, options):
     if extra_args and not ('action' in options and options['action'] == 'help'):
         options['action'] = extra_args[0]
     options['extra_args'] = extra_args[1:]
-    
+
 def get_time_string(status, options):
     timestamp = options["timestamp"]
     datestamp = options["datestamp"]
@@ -126,7 +125,7 @@ def get_time_string(status, options):
         return time.strftime("%H:%M:%S ", t)
     elif datestamp:
         return time.strftime("%Y-%m-%d ", t)
-    return ""                             
+    return ""
 
 class StatusFormatter(object):
     def __call__(self, status):
@@ -137,7 +136,7 @@ class StatusFormatter(object):
 class AnsiStatusFormatter(object):
     def __init__(self):
         self._colourMap = ansi.ColourMap()
-        
+
     def __call__(self, status, options):
         colour = self._colourMap.colourFor(status['user']['screen_name'])
         return (u"%s%s%s%s %s" %(
@@ -211,10 +210,7 @@ class Action(object):
         performed. When `careful`, the default answer is NO, otherwise YES.
         Returns the user answer in the form `True` or `False`.
         '''
-        sample = '(y/N)'
-        if not careful:
-            sample = '(Y/n)'
-        
+        sample = '(y/N)' if careful else '(Y/n)'
         prompt = 'You really want to %s %s? ' %(subject, sample)
         try:
             answer = raw_input(prompt).lower()
@@ -254,12 +250,12 @@ class NoSuchAction(Action):
     def __call__(self, twitter, options):
         raise NoSuchActionError("No such action: %s" %(options['action']))
 
-def printNicely(string):        
+def printNicely(string):
     if sys.stdout.encoding:
         print string.encode(sys.stdout.encoding, 'replace')
     else:
         print string.encode('utf-8')
-        
+
 class StatusAction(Action):
     def __call__(self, twitter, options):
         statuses = self.getStatuses(twitter, options)
